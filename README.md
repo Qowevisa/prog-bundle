@@ -8,11 +8,11 @@ Everything else about compilation is written in Makefile, so just run
 make
 ```
 and read the output.
-Beaware that Makefile will try to sudo gcc every source file, so either call 'compile-all' option
+Beaware that Makefile will try to gcc every source file into ~/.local/bin folder, so check if it is in your $PATH variable or change folder in Makefile to appropriate. You can also run
 ```
 make compile-all
 ```
-and then sudo cp it by yourself whenever you want, or call 'compile-and-send' options and it will move everything in one go to /usr/local/bin foldef.
+and then copy programs by yourself whenever you want, or call 'compile-and-send' options and it will move everything in one go to ~/.local/bin foldef.
 ```
 make compile-and-send
 ```

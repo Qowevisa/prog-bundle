@@ -1,4 +1,4 @@
-path_f = /usr/local/bin
+path_f = ~/.local/bin
 SRC = src
 BIN = bin
 programs_src = $(shell ls $(SRC) | grep .c)
