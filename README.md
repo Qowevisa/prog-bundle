@@ -24,3 +24,10 @@ make <PROGRAM>
 ### bytes
 prints raw bytes in files from args in \{binary, singed decimal, unsigned decimal, hex\} format
 for help menu use only --help in first argument
+### chunks
+reads raw bytes in files from args and prints them in chunk. So if file contains only FF bytes the output will be
+```
+FF:N
+```
+where N is number of bytes in file. You can check it with stat program.
+It also can read only N first bytes. As always just, check --help menu.
