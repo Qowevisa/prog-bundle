@@ -18,16 +18,41 @@ enum style {
 };
 
 enum options {
-   space_indent = 1 
+   unique = 1
 };
 
 static inline void print_help_menu(char *name) {
     printf( "Usage: %s [OPTIONS] <FILE> \n"
             "Options:\n"
+            "  -h        : prints bytes in uppercase hex format (00..FF)\n"
+            "  -s        : prints bytes in signed decimal format (-128..+127)\n"
+            "  -u        : prints bytes in unsigned decimal format (0..+255)\n"
+            "  -b        : prints bytes in binary format\n"
+            "  -q        : prints only unique bytes\n"
+            "                (e.g. no repetative values will be printed)\n"
             "  --block N : prints bytes in block of N\n"
             "  --num N   : reads only first N bytes if possible\n"
             , name);
 }
+
+#define print_char(c) \
+    switch (def_style) { \
+        case bin: \
+            printf("%u%u%u%u%u%u%u%u ", (c&128)>0, (c&64)>0, (c&32)>0, (c&16)>0, (c&8)>0, (c&4)>0, (c&2)>0, (c&1)>0); \
+            break; \
+        case sdec: \
+            printf("%+*d ", 4, c); \
+            break; \
+        case udec: \
+            printf("%*u ", 3, c); \
+            break; \
+        case hex: \
+            printf("%c%c ", hex_str[(c&0xF0) >> 4], hex_str[c&0xF]); \
+            break; \
+        default: \
+            printf("%+*d ", 4, c); \
+            break; \
+    }
 
 static const char hex_str[] = "0123456789ABCDEF";
 
@@ -41,6 +66,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     // check style and opts
+    uint8_t opts = 0;
     uint8_t def_style = udec;
     int8_t block_size = 0;
     uint8_t block_i = 0;
@@ -91,6 +117,10 @@ int main(int argc, char *argv[]) {
                 case 'b':
                     def_style = bin;
                     break;
+                // opts
+                case 'q':
+                    opts |= unique;
+                    break;
             }
         }
     }
@@ -117,30 +147,19 @@ int main(int argc, char *argv[]) {
             return 6;
         }
         printf("%s\n", argv[i]);
-        uint8_t c;
+        uint8_t curr = 0;
+        uint8_t past = 0;
         uint8_t block_counter = 1;
         for (__off_t i = 0; i < buffer.st_size; i++) {
             if (num > 0 && i == num) {
                 break;
             }
-            c = fgetc(file);
-            switch (def_style) {
-                case bin:
-                    printf("%u%u%u%u%u%u%u%u ", (c&128)>0, (c&64)>0, (c&32)>0, (c&16)>0, (c&8)>0, (c&4)>0, (c&2)>0, (c&1)>0);
-                    break;
-                case sdec:
-                    printf("%+*d ", 4, c);
-                    break;
-                case udec:
-                    printf("%*u ", 3, c);
-                    break;
-                case hex:
-                    printf("%c%c ", hex_str[(c&0xF0) >> 4], hex_str[c&0xF]);
-                    break;
-                default:
-                    printf("%+*d ", 4, c);
-                    break;
+            past = curr;
+            curr = fgetc(file);
+            if (opts & unique && curr == past) {
+                continue;
             }
+            print_char(curr);
             if (block_counter++ == block_size) {
                 block_counter -= block_size;
                 fputc('\n', stdout);
