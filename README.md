@@ -20,3 +20,7 @@ You can make individual programs by calling
 ```
 make <PROGRAM>
 ```
+## Sinopsis for each program
+### bytes
+prints raw bytes in files from args in \{binary, singed decimal, unsigned decimal, hex\} format
+for help menu use only --help in first argument
